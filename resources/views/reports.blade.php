@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('images/logo/logobg.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
-    <title>Spendly</title>
+    <title>SpendWise</title>
 </head>
 <body class="bg-[#EEEEEE] h-screen">
 
@@ -23,7 +23,7 @@
                     <div class="bg-neutral-50 fixed md:static w-full pt-10 md:pt-0 z-0">
                         <h1 class="text-2xl md:text-3xl font-semibold py-5 md:py-0">{{ $page }}</h1>
                     </div>
-                    
+
                 </div>
 
                 {{-- content --}}
@@ -44,7 +44,7 @@
                                 {{ date('Y-m-d', strtotime('-30 days')) }}
                             </x-slot:value>
                         </x-forms.form>
-                        
+
                         <x-forms.form type="date">
                             <x-slot:label>
                                 To

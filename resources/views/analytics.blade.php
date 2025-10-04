@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('images/logo/logobg.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
-    <title>Spendly</title>
+    <title>SpendWise</title>
 </head>
 <body class="bg-[#EEEEEE] h-screen text-[#222831]">
 
@@ -42,7 +42,7 @@
 
                 {{-- content --}}
                 <h1 class="mt-10 text-lg md:text-xl font-semibold">Transaction History</h1>
-                
+
                 <div class="mt-4 flex flex-col gap-2 overflow-y-auto no-scrollbar transaction-container">
                     @if (count($transactions) == 0)
                         <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No transactions yet</span>
@@ -53,11 +53,11 @@
                                     <x-slot:expense>
                                         {{ $transaction['expense'] }}
                                     </x-slot:expense>
-                                    
+
                                     <x-slot:total>
-                                        {{ number_format($transaction['total'], 0, ',', '.') }}
+                                       P {{ number_format($transaction['total'], 0, '.', ',') }}
                                     </x-slot:total>
-                                    
+
                                     <x-slot:date>
                                         {{ date('d M Y', strtotime($transaction['date'])) }}
                                     </x-slot:date>
@@ -66,7 +66,7 @@
                         @endforeach
                     @endif
                 </div>
-                
+
             </div>
         </div>
 

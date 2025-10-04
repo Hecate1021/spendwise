@@ -21,6 +21,14 @@ class loginController extends Controller
         $user = User::where('username', $username)->first();
 
         if ($user && Hash::check($password, $user->password)) {
+            // ✅ check if email is verified
+            if (is_null($user->email_verified_at)) {
+                // send them to verification page instead of logging in
+                return redirect()->route('register.verify')
+                                 ->with('error', 'Please verify your email first.');
+            }
+
+            // ✅ login success
             session()->put('username', $user->username);
             session()->put('profilePicture', $user->profilePicture);
 

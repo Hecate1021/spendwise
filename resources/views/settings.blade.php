@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('images/logo/logobg.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
-    <title>Spendly</title>
+    <title>SpendWise</title>
 </head>
 <body class="bg-[#EEEEEE] h-screen">
 
@@ -48,7 +48,7 @@
                 <div class="mt-20 md:mt-6 mx-auto w-full md:w-2/3 lg:w-1/3">
                     <form action="" method="POST" class="flex flex-col gap-4" enctype="multipart/form-data">
                         @csrf
-                        
+
                         <div class="flex gap-4 lg:gap-6 items-center">
                             <x-profile-picture.profile-picture width="w-16" height="h-16">
                                 <x-slot:src>
@@ -89,7 +89,7 @@
                                     currentPassword
                                 </x-slot:id>
                             </x-forms.form>
-                            
+
                             <x-forms.form type="text" size="text-md" required=''>
                                 <x-slot:label>
                                     Enter New Password

@@ -33,7 +33,7 @@ class settingsController extends Controller
 
             // Validate file
             $request->validate([
-                'changeProfilePicture' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // adjust max size as needed
+                'changeProfilePicture' => 'image|mimes:jpeg,png,jpg,gif' // adjust max size as needed
             ]);
 
             // Generate unique file name

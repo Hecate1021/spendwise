@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('images/logo/logobg.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
-    <title>Spendly</title>
+    <title>SpendWise</title>
 </head>
 <body class="bg-[#EEEEEE] h-screen text-[#222831]">
 
@@ -27,7 +27,7 @@
                     <div class="hidden md:block">
                         <x-profile-picture.profile-picture>
                             <x-slot:src>
-                                {{ Storage::url(session('profilePicture')) }}
+                                {{ asset('images/logo/Default_pfp.jpg')}}
                             </x-slot:src>
                         </x-profile-picture.profile-picture>
                     </div>
@@ -46,7 +46,7 @@
                     <div class="flex flex-col w-full lg:w-1/2 min-h-1/2 lg:min-h-0 h-full border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden">
                         {{-- card --}}
                         @php
-                             $total = 0 
+                             $total = 0
                         @endphp
 
                         @foreach ($transactions as $transaction)
@@ -56,7 +56,7 @@
                         @endforeach
 
                         <x-cards.expense-card class="p-6" h1Class="text-2xl lg:text-3xl" spanClass="text-sm lg:text-base" date="{{ date('M Y') }}" total="{{ $total }}"/>
-                        
+
                         {{-- transactions --}}
                         <h2 class="mt-4 px-6 text-lg font-bold">Last Transactions</h2>
                         <div class="mt-4 flex flex-col gap-4 px-6 pb-6 overflow-y-auto">
@@ -69,11 +69,11 @@
                                             <x-slot:expense>
                                                 {{ $transaction['expense'] }}
                                             </x-slot:expense>
-                                            
+
                                             <x-slot:total>
                                                 {{ number_format($transaction['total'], 0, ',', '.') }}
                                             </x-slot:total>
-                                            
+
                                             <x-slot:date>
                                                 {{ date('d M Y', strtotime($transaction['date'])) }}
                                             </x-slot:date>
@@ -83,7 +83,7 @@
                             @endif
                         </div>
                     </div>
-                    
+
                     <div class="w-full lg:w-1/2 min-h-1/2 lg:min-h-0 h-full flex flex-col gap-6">
                         {{-- monthly spend --}}
                         <div class="p-6 {{ count($transactions) == 0 ? 'h-1/3' : 'h-max' }} border-solid border-2 border-[#EEEEEE] rounded-2xl">
@@ -95,18 +95,18 @@
                                 @else
                                     @php
                                         $date = fn($transaction) => date('M Y', strtotime($transaction['date']));
-                                        $grouped = collect($transactions)->groupBy($date) 
+                                        $grouped = collect($transactions)->groupBy($date)
                                     @endphp
-                                    
+
                                     @foreach ($grouped as $month => $transactions)
                                         <x-cards.expense-card class="w-[200px] lg:w-[250px] p-4 lg:p-6" h1Class="text-xl lg:text-2xl" spanClass="text-xs lg:text-sm" spanText="{{ date('M', strtotime($month)) }}" date="{{ date('Y', strtotime($month)) }}" total="{{ $transactions->sum('total') }}"/>
-                                    
+
                                         @php
                                         $dataPoints[] = [
                                             "x" => strtotime($month . "-01") * 1000,
                                             "y" => $transactions->sum('total')
                                         ];
-                                        @endphp 
+                                        @endphp
                                     @endforeach
                                 @endif
                             </div>
@@ -136,12 +136,12 @@
     @if (count($transactions) > 0)
         <script>
             window.onload = function () {
-    
+
             var chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
                 backgroundColor: "transparent",
                 zoomEnabled: true,
-                axisX:{      
+                axisX:{
                     valueFormatString: "D MMM",
                     labelAngle: -45,
                     interval: 2628000,
@@ -158,9 +158,9 @@
                     dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
                 }]
             });
-            
+
             chart.render();
-            
+
             };
         </script>
     @endif

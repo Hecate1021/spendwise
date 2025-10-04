@@ -83,7 +83,7 @@
     </style>
 </head>
 <body>
-    
+
     <h1 class="heading">EXPENSE REPORT</h1>
 
     <div class="user-data-container">
@@ -101,10 +101,10 @@
 
         <div class="transaction-container">
             <span class="expense-title">{{ $transaction['expense'] }} ({{ date('d M Y', strtotime($transaction['date'])) }})</span>
-            <span class="expense-total">{{ 'Rp ' . number_format($transaction['total'], 2, ',', '.') }}</span>
+            <span class="expense-total">{{ 'P ' . number_format($transaction['total'], 2, '.', ',') }}</span>
         </div>
     @endforeach
 
-    <span class="total">Total: {{ 'Rp ' . number_format($sum, 2, ',', '.') }}</span>
+    <span class="total">Total: {{ 'P ' . number_format($sum, 2, '.', ',') }}</span>
 </body>
 </html>

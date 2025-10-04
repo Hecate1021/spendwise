@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('images/logo/logobg.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
-    <title>Spendly</title>
+    <title>SpendWise</title>
 </head>
 
 <body class="bg-neutral-50 md:bg-[#EEEEEE] h-screen text-[#222831]">
@@ -52,7 +52,7 @@
                         password
                     </x-slot:id>
                 </x-forms.form>
-        
+
                 <a href="/register" class="text-[#222831] text-sm underline">Don't have an account? Sign Up</a>
 
                 <button type="submit" class="mt-6 bg-[#222831] text-white rounded-3xl px-4 py-2 font-semibold w-full text-sm lg:text-base">Log In</button>
@@ -60,7 +60,7 @@
             </form>
         </div>
     </div>
-    
+
     @vite('resources/js/jquery-3.7.1.min.js')
     @vite('resources/js/alert.js')
 </body>

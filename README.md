@@ -79,3 +79,4 @@ If you would like to contribute to this project, feel free to fork the repositor
 ## Author
 
 -   [Rivaldo Tandoko](https://github.com/rtrivaldo)
+# spendwise
