@@ -19,6 +19,7 @@
         {{-- main --}}
         <div class="h-full w-full md:pl-0 md:pr-6 md:py-10 overflow-hidden">
             <div class="flex flex-col bg-neutral-50 h-full md:rounded-3xl px-6 md:px-10 py-8 overflow-y-auto lg:overflow-hidden no-scrollbar">
+
                 {{-- headings --}}
                 <div class="flex items-center justify-between bg-neutral-50" id="heading">
                     <div class="flex items-center justify-between" id="heading">
@@ -40,24 +41,21 @@
                     </div>
                 </div>
 
-                {{-- content --}}
-                <h1 class="mt-10 text-lg md:text-xl font-semibold">Transaction History</h1>
-
+                {{-- Expenses --}}
+                <h1 class="mt-10 text-lg md:text-xl font-semibold text-red-600">Expense History</h1>
                 <div class="mt-4 flex flex-col gap-2 overflow-y-auto no-scrollbar transaction-container">
                     @if (count($transactions) == 0)
-                        <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No transactions yet</span>
+                        <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No expenses yet</span>
                     @else
                         @foreach ($transactions as $transaction)
                             <a href="expense/{{ $transaction['id'] }}">
-                                <x-cards.transaction-card>
+                                <x-cards.transaction-card class="border-l-4 border-red-500">
                                     <x-slot:expense>
                                         {{ $transaction['expense'] }}
                                     </x-slot:expense>
-
                                     <x-slot:total>
-                                       P {{ number_format($transaction['total'], 0, '.', ',') }}
+                                        - P {{ number_format($transaction['total'], 0, '.', ',') }}
                                     </x-slot:total>
-
                                     <x-slot:date>
                                         {{ date('d M Y', strtotime($transaction['date'])) }}
                                     </x-slot:date>
@@ -67,9 +65,45 @@
                     @endif
                 </div>
 
+                {{-- Incomes --}}
+                <h1 class="mt-10 text-lg md:text-xl font-semibold text-green-600">Income History</h1>
+                <div class="mt-4 flex flex-col gap-2 overflow-y-auto no-scrollbar transaction-container">
+                    @if (count($incomes) == 0)
+                        <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No incomes yet</span>
+                    @else
+                        @foreach ($incomes as $income)
+                            <a href="income/{{ $income['id'] }}">
+                                <x-cards.transaction-card class="border-l-4 border-green-500">
+                                    <x-slot:expense>
+                                        {{ $income['income_source'] }}
+                                    </x-slot:expense>
+                                    <x-slot:total>
+                                        + P {{ number_format($income['total'], 0, '.', ',') }}
+                                    </x-slot:total>
+                                    <x-slot:date>
+                                        {{ date('d M Y', strtotime($income['date'])) }}
+                                    </x-slot:date>
+                                </x-cards.transaction-card>
+                            </a>
+                        @endforeach
+                    @endif
+                </div>
+
+                {{-- Cash on Hand --}}
+                @php
+                    $totalIncome = $incomes->sum('total');
+                    $totalExpense = $transactions->sum('total');
+                    $cashOnHand = $totalIncome - $totalExpense;
+                @endphp
+                <div class="mt-10 bg-[#222831] text-[#EEEEEE] rounded-2xl p-6">
+                    <span class="text-sm">Total Cash on Hand</span>
+                    <h1 class="mt-2 text-2xl font-bold">
+                        P {{ number_format($cashOnHand, 0, '.', ',') }}
+                    </h1>
+                </div>
+
             </div>
         </div>
-
     </div>
 
     @vite('resources/js/jquery-3.7.1.min.js')

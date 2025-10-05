@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('goals', function (Blueprint $table) {
+        Schema::create('incomes', function (Blueprint $table) {
             $table->id();
-            $table->string('user'); // instead of user_id
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('target_amount');
-            $table->date('aim_date');
+            $table->string('user');
+            $table->string('income_source');
+            $table->integer('total');
+            $table->date('date');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('goals');
+        Schema::dropIfExists('incomes');
     }
 };

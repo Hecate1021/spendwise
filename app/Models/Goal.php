@@ -7,5 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Goal extends Model
 {
-    use HasFactory;
+     use HasFactory;
+
+   protected $fillable = [
+        'user',
+        'title',
+        'description',
+        'target_amount',
+        'aim_date',
+        'is_completed',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

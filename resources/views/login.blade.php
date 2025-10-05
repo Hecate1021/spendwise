@@ -60,7 +60,7 @@
             </form>
         </div>
     </div>
-
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite('resources/js/jquery-3.7.1.min.js')
     @vite('resources/js/alert.js')
 </body>

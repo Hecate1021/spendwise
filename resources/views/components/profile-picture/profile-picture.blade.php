@@ -1,5 +1,12 @@
-<div>
-    <div class="bg-gray-300 rounded-full overflow-hidden {{ $width ? $width : 'w-12' }} {{ $height ? $height : 'h-12' }}">
-        <img src="{{ $src }}" alt="" class="{{ $width ? $width : 'w-12' }} {{ $height ? $height : 'h-12' }} object-fill">
-    </div>
+@props([
+    'src',
+    'width' => 'w-24',   // Tailwind size (96px)
+    'height' => 'h-24',
+    'alt' => 'Profile Picture',
+])
+
+<div class="relative {{ $width }} {{ $height }}">
+    <img src="{{ $src }}" 
+         alt="{{ $alt }}" 
+         class="{{ $width }} {{ $height }} rounded-full object-cover border border-gray-300">
 </div>

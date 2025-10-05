@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,161 +9,294 @@
     @vite('resources/css/app.css')
     <title>SpendWise</title>
 </head>
-<body class="bg-[#EEEEEE] h-screen text-[#222831]">
 
-    {{-- container --}}
+<body class="bg-[#EEEEEE] h-screen text-[#222831] overflow-hidden">
+
     <div class="flex h-full">
+        {{-- Sidebar --}}
+        <x-sidebar.nav />
 
-        {{-- sidebar --}}
-        <x-sidebar.nav/>
+        {{-- Main --}}
+        <div class="h-full w-full md:pl-0 md:pr-6 md:py-6 overflow-hidden">
+            <div
+                class="flex flex-col bg-neutral-50 h-full md:rounded-3xl px-6 md:px-10 py-6 overflow-y-auto no-scrollbar">
 
-        {{-- main --}}
-        <div class="h-full w-full md:pl-0 md:pr-6 md:py-10 overflow-hidden">
-            <div class="flex flex-col bg-neutral-50 h-full md:rounded-3xl px-6 md:px-10 py-8 overflow-y-auto lg:overflow-hidden no-scrollbar">
-                {{-- headings --}}
-                <div class="flex items-center justify-between " id="heading">
-                    <div class="bg-neutral-50 fixed md:static w-full pt-10 md:pt-0 z-0">
-                        <h1 class="text-2xl md:text-3xl font-semibold py-5 md:py-0">{{ $page }}</h1>
+                {{-- Heading --}}
+                <div class="flex items-center justify-between">
+                    <div class="bg-neutral-50 fixed md:static w-full pt-6 md:pt-0 z-0">
+                        <h1 class="text-2xl md:text-3xl font-semibold py-3 md:py-0">{{ $page }}</h1>
                     </div>
                     <div class="hidden md:block">
-                        <x-profile-picture.profile-picture>
-                            <x-slot:src>
-                                {{ asset('images/logo/Default_pfp.jpg')}}
-                            </x-slot:src>
-                        </x-profile-picture.profile-picture>
+                        <x-profile-picture.profile-picture src="{{ asset('images/logo/Default_pfp.jpg') }}"
+                            width="w-16" height="h-16" />
                     </div>
                 </div>
 
-                {{-- alert --}}
+                {{-- Alert --}}
                 @if (session('success'))
-                    <x-alerts.success-alert class="mt-4 {{ session('success') == 'Expense deleted successfully!' ? 'bg-red-500' : 'bg-teal-500' }}">
+                    <x-alerts.success-alert
+                        class="mt-4 {{ session('success') == 'Expense deleted successfully!' ? 'bg-red-500' : 'bg-teal-500' }}">
                         {{ session('success') }}
                     </x-alerts.success-alert>
                 @endif
 
-                {{-- content --}}
-                <div class="mt-20 lg:mt-10 min-h-[150vh] lg:min-h-0 h-full flex flex-col lg:flex-row gap-6 overflow-hidden">
-                    {{-- last transactions --}}
-                    <div class="flex flex-col w-full lg:w-1/2 min-h-1/2 lg:min-h-0 h-full border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden">
-                        {{-- card --}}
-                        @php
-                             $total = 0
-                        @endphp
+                {{-- Content --}}
+                <div class="mt-16 lg:mt-8 flex flex-col gap-6 overflow-visible">
 
-                        @foreach ($transactions as $transaction)
-                            @if (date('M', strtotime($transaction['date'])) == date('M'))
-                                <?php $total += $transaction['total'] ?>
-                            @endif
-                        @endforeach
+                    {{-- Top two columns --}}
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        {{-- Left column: incomes --}}
+                        <div
+                            class="flex flex-col w-full lg:w-1/2 border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden">
+                            <x-cards.cashonhand-card class="p-6" h1Class="text-2xl lg:text-3xl"
+                                spanClass="text-sm lg:text-base" date="{{ date('M Y') }}" :total="$balance" />
 
-                        <x-cards.expense-card class="p-6" h1Class="text-2xl lg:text-3xl" spanClass="text-sm lg:text-base" date="{{ date('M Y') }}" total="{{ $total }}"/>
-
-                        {{-- transactions --}}
-                        <h2 class="mt-4 px-6 text-lg font-bold">Last Transactions</h2>
-                        <div class="mt-4 flex flex-col gap-4 px-6 pb-6 overflow-y-auto">
-                            @if (count($transactions) == 0)
-                                <span class="mt-10 text-md font-semibold text-center text-gray-500">No transactions yet</span>
-                            @else
-                                @foreach ($transactions as $transaction)
-                                    <a href="expense/{{ $transaction['id'] }}">
+                            <h2 class="mt-2 px-6 text-lg font-bold">Income Summary</h2>
+                            <div class="mt-2 flex flex-col gap-4 px-6 pb-6 overflow-y-auto max-h-[400px]">
+                                @forelse ($incomes as $income)
+                                    <a href="income/{{ $income['id'] }}">
                                         <x-cards.transaction-card>
-                                            <x-slot:expense>
-                                                {{ $transaction['expense'] }}
-                                            </x-slot:expense>
-
-                                            <x-slot:total>
-                                                {{ number_format($transaction['total'], 0, ',', '.') }}
-                                            </x-slot:total>
-
-                                            <x-slot:date>
-                                                {{ date('d M Y', strtotime($transaction['date'])) }}
-                                            </x-slot:date>
+                                            <x-slot:expense>{{ $income['income_source'] }}</x-slot:expense>
+                                            <x-slot:total>{{ number_format($income['total'], 0, '.', ',') }}</x-slot:total>
+                                            <x-slot:date>{{ date('d M Y', strtotime($income['date'])) }}</x-slot:date>
                                         </x-cards.transaction-card>
                                     </a>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="w-full lg:w-1/2 min-h-1/2 lg:min-h-0 h-full flex flex-col gap-6">
-                        {{-- monthly spend --}}
-                        <div class="p-6 {{ count($transactions) == 0 ? 'h-1/3' : 'h-max' }} border-solid border-2 border-[#EEEEEE] rounded-2xl">
-                            <span class="font-bold text-lg">Your expenses</span>
-                            <div class="flex gap-6 mt-4 overflow-x-auto no-scrollbar md:pb-2">
-                                {{-- card --}}
-                                @if (count($transactions) == 0)
-                                    <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No transactions yet</span>
-                                @else
-                                    @php
-                                        $date = fn($transaction) => date('M Y', strtotime($transaction['date']));
-                                        $grouped = collect($transactions)->groupBy($date)
-                                    @endphp
-
-                                    @foreach ($grouped as $month => $transactions)
-                                        <x-cards.expense-card class="w-[200px] lg:w-[250px] p-4 lg:p-6" h1Class="text-xl lg:text-2xl" spanClass="text-xs lg:text-sm" spanText="{{ date('M', strtotime($month)) }}" date="{{ date('Y', strtotime($month)) }}" total="{{ $transactions->sum('total') }}"/>
-
-                                        @php
-                                        $dataPoints[] = [
-                                            "x" => strtotime($month . "-01") * 1000,
-                                            "y" => $transactions->sum('total')
-                                        ];
-                                        @endphp
-                                    @endforeach
-                                @endif
+                                @empty
+                                    <span class="mt-10 text-md font-semibold text-center text-gray-500">No income
+                                        yet</span>
+                                @endforelse
                             </div>
                         </div>
 
-                        {{-- charts --}}
-                        <div class="p-6 h-2/3 flex items-center gap-6 border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden">
-                            {{-- charts --}}
-                            @if (count($transactions) == 0)
-                                <span class="mt-10 text-md font-semibold text-center text-gray-500 w-full">No transactions yet</span>
-                            @else
-                                <div id="chartContainer" class="w-full h-[250px] md:h-full"></div>
-                            @endif
+                        {{-- Right column: transactions --}}
+                        <div
+                            class="flex flex-col w-full lg:w-1/2 border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden">
+                            @php $total = $transactions->sum('total'); @endphp
+                            <x-cards.expense-card class="p-6" h1Class="text-2xl lg:text-3xl"
+                                spanClass="text-sm lg:text-base" date="{{ date('M Y') }}"
+                                total="{{ $total }}" />
+
+                            <h2 class="mt-2 px-6 text-lg font-bold">Last Transactions</h2>
+                            <div class="mt-2 flex flex-col gap-4 px-6 pb-6 overflow-y-auto max-h-[400px]">
+                                @forelse ($transactions as $transaction)
+                                    <a href="expense/{{ $transaction['id'] }}">
+                                        <x-cards.transaction-card>
+                                            <x-slot:expense>{{ $transaction['expense'] }}</x-slot:expense>
+                                            <x-slot:total>{{ number_format($transaction['total'], 0, '.', ',') }}</x-slot:total>
+                                            <x-slot:date>{{ date('d M Y', strtotime($transaction['date'])) }}</x-slot:date>
+                                        </x-cards.transaction-card>
+                                    </a>
+                                @empty
+                                    <span class="mt-10 text-md font-semibold text-center text-gray-500">No transactions
+                                        yet</span>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
+
+
+                    {{-- Income vs Expenses Chart --}}
+                    <div
+                        class="p-6 w-full border-solid border-2 border-[#EEEEEE] rounded-2xl overflow-hidden flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold">Income vs Expenses</h2>
+                            <div class="flex gap-2">
+                                <button
+                                    class="chart-toggle px-3 py-1 rounded-lg text-sm font-medium border border-gray-300"
+                                    data-type="daily">Daily</button>
+                                <button
+                                    class="chart-toggle px-3 py-1 rounded-lg text-sm font-medium border border-gray-300 bg-[#00ADB5] text-white"
+                                    data-type="weekly">Weekly</button>
+                                <button
+                                    class="chart-toggle px-3 py-1 rounded-lg text-sm font-medium border border-gray-300"
+                                    data-type="monthly">Monthly</button>
+                            </div>
+                        </div>
+                        <div id="chartContainer" class="w-full h-[400px]"></div>
+                    </div>
+
+                    {{-- Aim Goals --}}
+                    {{-- Aim Goals --}}
+                    <div x-data="{ openModal: false, selectedGoalId: null }"
+                        class="p-6 w-full border-solid border-2 border-[#EEEEEE] rounded-2xl flex flex-col overflow-hidden">
+
+                        <h2 class="text-lg font-bold mb-4">Your Aim Goals</h2>
+
+                        <div class="flex flex-col gap-4 overflow-y-auto max-h-[400px]">
+                            @forelse ($goals as $goal)
+                                <div
+                                    class="bg-white shadow-sm hover:shadow-md transition rounded-xl p-4 flex flex-col gap-2">
+                                    <div class="flex justify-between items-start">
+
+                                        {{-- Goal Info --}}
+                                        <a href="{{ url("edit-goal/{$goal->id}") }}" class="flex-1">
+                                            <h3 class="font-semibold text-lg text-[#222831]">{{ $goal->title }}</h3>
+                                            <p class="text-sm text-gray-600">{{ $goal->description }}</p>
+                                            <span
+                                                class="text-sm text-gray-500">{{ date('d M Y', strtotime($goal->aim_date)) }}</span>
+
+                                            {{-- Progress Bar --}}
+                                            <div class="mt-2">
+                                                @php
+                                                    $progress = min(
+                                                        100,
+                                                        round(($balance / $goal->target_amount) * 100),
+                                                    );
+                                                @endphp
+                                                <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                                                    <div class="h-2 bg-teal-500" style="width: {{ $progress }}%">
+                                                    </div>
+                                                </div>
+                                                <span class="text-xs text-gray-500 mt-1 block">
+                                                    ₱{{ number_format($balance, 0, '.', ',') }} /
+                                                    ₱{{ number_format($goal->target_amount, 0, '.', ',') }}
+                                                    ({{ $progress }}%)
+                                                </span>
+                                            </div>
+                                        </a>
+
+                                        {{-- ✅ Check Circle Button --}}
+                                        <button @click="selectedGoalId = {{ $goal->id }}; openModal = true"
+                                            class="ml-3 w-12 h-12 flex items-center justify-center rounded-full bg-green-500 hover:bg-green-600 transition transform hover:scale-105 shadow-md"
+                                            title="Mark as done">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                class="w-8 h-8">
+                                                <circle cx="12" cy="12" r="10" fill="white"
+                                                    fill-opacity="0" />
+                                                <path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="white" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </button>
+
+
+
+                                    </div>
+                                </div>
+                            @empty
+                                <span class="mt-10 text-md font-semibold text-center text-gray-500">No goals yet</span>
+                            @endforelse
+                        </div>
+
+                        {{-- 🟢 Confirmation Modal --}}
+                        <div x-show="openModal" x-transition x-cloak
+                            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                            <div @click.away="openModal = false"
+                                class="bg-white p-6 rounded-2xl shadow-lg w-80 text-center">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Mark Goal as Completed?</h3>
+                                <p class="text-sm text-gray-600 mb-6">Are you sure you want to mark this goal as done?
+                                    This action cannot be undone.</p>
+
+                                <div class="flex justify-center gap-3">
+                                    <button @click="openModal = false"
+                                        class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                                        Cancel
+                                    </button>
+
+                                    <form x-bind:action="'{{ url('goals') }}/' + selectedGoalId + '/complete'"
+                                        method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
+                                            Confirm
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
-
     </div>
-
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- Scripts --}}
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-    @vite('resources/js/jquery-3.7.1.min.js')
     @vite('resources/js/app.js')
+    @vite('resources/js/jquery-3.7.1.min.js')
     @vite('resources/js/alert.js')
 
-    @if (count($transactions) > 0)
-        <script>
-            window.onload = function () {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const datasets = {
+                daily: {
+                    expenses: @json($dailyData['expenses']),
+                    income: @json($dailyData['income'])
+                },
+                weekly: {
+                    expenses: @json($weeklyData['expenses']),
+                    income: @json($weeklyData['income'])
+                },
+                monthly: {
+                    expenses: @json($monthlyData['expenses']),
+                    income: @json($monthlyData['income'])
+                }
+            };
 
-            var chart = new CanvasJS.Chart("chartContainer", {
+            let currentType = "weekly";
+            const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
                 backgroundColor: "transparent",
-                zoomEnabled: true,
-                axisX:{
-                    valueFormatString: "D MMM",
+                axisX: {
+                    title: "Date",
+                    valueFormatString: "MMM DD YYYY",
                     labelAngle: -45,
-                    interval: 2628000,
+                    labelFontSize: 12
                 },
                 axisY: {
-                    valueFormatString: "#,###"
+                    title: "Amount (₱)",
+                    valueFormatString: "#,###",
+                    labelFontSize: 12
                 },
-                data: [{
-                    type: "spline",
-                    markerSize: 5,
-                    xValueFormatString: "MMMM",
-                    yValueFormatString: "#,###",
-                    xValueType: "dateTime",
-                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
-                }]
+                legend: {
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    fontSize: 14
+                },
+                data: []
             });
 
-            chart.render();
+            function updateChart(type) {
+                const d = datasets[type];
+                chart.options.data = [{
+                        type: "line",
+                        name: "Expenses",
+                        color: "#FF6B6B",
+                        showInLegend: true,
+                        xValueType: "dateTime",
+                        markerSize: 6,
+                        dataPoints: d.expenses
+                    },
+                    {
+                        type: "line",
+                        name: "Income",
+                        color: "#00ADB5",
+                        showInLegend: true,
+                        xValueType: "dateTime",
+                        markerSize: 6,
+                        dataPoints: d.income
+                    }
+                ];
+                chart.render();
+            }
 
-            };
-        </script>
-    @endif
+            updateChart(currentType);
+
+            document.querySelectorAll(".chart-toggle").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".chart-toggle").forEach(b => b.classList.remove(
+                        "bg-[#00ADB5]", "text-white"));
+                    btn.classList.add("bg-[#00ADB5]", "text-white");
+                    currentType = btn.dataset.type;
+                    updateChart(currentType);
+                });
+            });
+        });
+    </script>
+
 </body>
+
 </html>
