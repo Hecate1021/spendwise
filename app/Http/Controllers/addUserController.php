@@ -11,32 +11,33 @@ use Carbon\Carbon;
 class addUserController extends Controller
 {
     public function register(Request $request)
-    {
-        $request->validate([
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6',
-            'reenterPassword' => 'required|string|same:password',
-        ]);
+{
+    $request->validate([
+        'username' => 'required|string|max:255|unique:users',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|string|min:6',
+        'reenterPassword' => 'required|string|same:password',
+    ]);
 
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'is_verified' => false,
-            'verification_code' => rand(100000, 999999),
-            'code_expires_at' => Carbon::now()->addHour(),
-        ]);
+    $user = User::create([
+        'username' => $request->username,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'is_verified' => false,
+        'verification_code' => rand(100000, 999999),
+        'code_expires_at' => Carbon::now()->addHour(),
+    ]);
 
-        // Send email
-        Mail::raw("Your verification code is: {$user->verification_code}", function ($msg) use ($user) {
-            $msg->to($user->email)->subject('Email Verification Code');
-        });
+    // Send email
+    Mail::raw("Your verification code is: {$user->verification_code}", function ($msg) use ($user) {
+        $msg->to($user->email)->subject('Email Verification Code');
+    });
 
-        session(['email' => $user->email]);
+    session(['email' => $user->email]);
 
-        return redirect()->route('register.verify')->with('success', 'A verification code was sent to your email.');
-    }
+    return redirect()->route('register.verify')->with('success', 'A verification code was sent to your email.');
+}
+
 
     public function verify(Request $request)
     {

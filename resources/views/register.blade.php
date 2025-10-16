@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,16 @@
     <div class="flex justify-center w-full h-full items-center">
         <div class="bg-neutral-50 w-full md:w-1/2 xl:w-1/3 md:rounded-3xl p-8 px-10">
             <h1 class="text-2xl md:text-3xl font-bold text-center md:text-left">Sign Up</h1>
+            {{-- Validation Errors --}}
+            @if ($errors->any())
+                <x-alerts.success-alert class="mt-4">
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </x-alerts.success-alert>
+            @endif
 
             {{-- alert --}}
             @if (session('success'))
@@ -34,54 +45,56 @@
             @endif
 
             <form action="{{ route('register.submit') }}" method="POST" class="flex flex-col gap-2 mt-6">
-    @csrf
-    <x-forms.form type="text">
-        <x-slot:label>
-            Username
-        </x-slot:label>
-        <x-slot:id>
-            username
-        </x-slot:id>
-    </x-forms.form>
+                @csrf
+                <x-forms.form type="text">
+                    <x-slot:label>
+                        Username
+                    </x-slot:label>
+                    <x-slot:id>
+                        username
+                    </x-slot:id>
+                </x-forms.form>
 
-    <x-forms.form type="email">
-        <x-slot:label>
-            Email
-        </x-slot:label>
-        <x-slot:id>
-            email
-        </x-slot:id>
-    </x-forms.form>
+                <x-forms.form type="email">
+                    <x-slot:label>
+                        Email
+                    </x-slot:label>
+                    <x-slot:id>
+                        email
+                    </x-slot:id>
+                </x-forms.form>
 
-    <x-forms.form type="password">
-        <x-slot:label>
-            Password
-        </x-slot:label>
-        <x-slot:id>
-            password
-        </x-slot:id>
-    </x-forms.form>
+                <x-forms.form type="password">
+                    <x-slot:label>
+                        Password
+                    </x-slot:label>
+                    <x-slot:id>
+                        password
+                    </x-slot:id>
+                </x-forms.form>
 
-    <x-forms.form type="password">
-        <x-slot:label>
-            Reenter Password
-        </x-slot:label>
-        <x-slot:id>
-            reenterPassword
-        </x-slot:id>
-    </x-forms.form>
+                <x-forms.form type="password">
+                    <x-slot:label>
+                        Reenter Password
+                    </x-slot:label>
+                    <x-slot:id>
+                        reenterPassword
+                    </x-slot:id>
+                </x-forms.form>
 
-    <a href="/login" class="text-[#222831] text-sm underline">Already have an account? Log In</a>
+                <a href="/login" class="text-[#222831] text-sm underline">Already have an account? Log In</a>
 
-    <button type="submit" class="mt-6 bg-[#222831] text-white rounded-3xl px-4 py-2 font-semibold w-full text-sm lg:text-base">
-        Sign Up
-    </button>
-</form>
+                <button type="submit"
+                    class="mt-6 bg-[#222831] text-white rounded-3xl px-4 py-2 font-semibold w-full text-sm lg:text-base">
+                    Sign Up
+                </button>
+            </form>
 
         </div>
     </div>
-
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite('resources/js/jquery-3.7.1.min.js')
     @vite('resources/js/alert.js')
 </body>
+
 </html>

@@ -24,4 +24,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
+public function feedbacks()
+{
+    return $this->hasMany(Feedback::class, 'username', 'username');
+}
+
+
 }

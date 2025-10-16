@@ -10,19 +10,54 @@ use App\Http\Controllers\addExpenseController;
 use App\Http\Controllers\addIncomeController;
 use App\Http\Controllers\editExpenseController;
 use App\Http\Controllers\editIncomeController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\loginController;
 use App\Http\Controllers\settingsController;
 use App\Models\Goal;
 use App\Models\Income;
 use Carbon\Carbon;
-
+use App\Models\User;
+use App\Http\Controllers\UserFeedbackController;
 
 Route::get('/login', function () {
     return view('login');
 });
 
 Route::post('/login', [loginController::class, 'login']);
+
+//admin
+Route::get('/admin/dashboard', function () {
+    $username = session('username');
+    $role = session('role');
+
+    // 🔒 Check authentication and role
+    if (!$username) {
+        return redirect('/login')->with('error', 'Please log in first.');
+    }
+
+    if ($role !== 'admin') {
+        return redirect('/')->with('error', 'Unauthorized access.');
+    }
+
+    // ✅ Fetch all users (except admin if desired)
+    $users = User::where('role', '!=', 'admin')->get();
+
+    return view('admin.dashboard', [
+        'page' => 'Admin Dashboard',
+        'username' => $username,
+        'users' => $users,
+    ]);
+})->name('admin.dashboard');
+
+
+
+//feedbackroutes
+Route::post('/feedback', [FeedbackController::class, 'userSend']);
+Route::get('/admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback.index');
+Route::get('/admin/feedbacks/{user}', [FeedbackController::class, 'show'])->name('admin.feedback.show');
+Route::post('/admin/feedbacks/reply/{feedback}', [FeedbackController::class, 'reply'])->name('admin.feedback.reply');
+
 
 Route::get('/register', function () {
     return view('register'); // your register blade
@@ -42,69 +77,75 @@ Route::post('/resend-code', [addUserController::class, 'resend'])->name('registe
 //dashboard route
 
 Route::get('/', function () {
-    $user = session('username');
-    if (!$user) return redirect('/login');
+    $username = session('username');
+    if (!$username) return redirect('/login');
 
-    // Fetch data
-    $transactions = Transaction::where('user', $user)->orderBy('date', 'asc')->get();
-    $incomes = Income::where('user', $user)->orderBy('date', 'asc')->get();
+    // Fetch logged-in user details
+    $authUser = User::where('username', $username)->first();
+
+    // Transactions & incomes
+    $transactions = Transaction::where('user', $username)->orderBy('date', 'asc')->get();
+    $incomes = Income::where('user', $username)->orderBy('date', 'asc')->get();
 
     // Totals
     $totalExpense = $transactions->sum('total');
     $totalIncome = $incomes->sum('total');
     $balance = $totalIncome - $totalExpense;
 
-
-
     // DAILY
-    $dailyExpenses = $transactions->groupBy('date')->map(fn($group) =>
+    $dailyExpenses = $transactions->groupBy('date')->map(
+        fn($group) =>
         ['x' => strtotime($group->first()->date) * 1000, 'y' => $group->sum('total')]
     )->values();
 
-    $dailyIncomes = $incomes->groupBy('date')->map(fn($group) =>
+    $dailyIncomes = $incomes->groupBy('date')->map(
+        fn($group) =>
         ['x' => strtotime($group->first()->date) * 1000, 'y' => $group->sum('total')]
     )->values();
 
-    // WEEKLY (group by week of year)
-    $weeklyExpenses = $transactions->groupBy(fn($item) =>
+    // WEEKLY
+    $weeklyExpenses = $transactions->groupBy(
+        fn($item) =>
         Carbon::parse($item->date)->format('o-W')
     )->map(fn($group, $key) => [
         'x' => Carbon::now()->setISODate(substr($key, 0, 4), substr($key, 5))->startOfWeek()->timestamp * 1000,
         'y' => $group->sum('total')
     ])->values();
 
-    $weeklyIncomes = $incomes->groupBy(fn($item) =>
+    $weeklyIncomes = $incomes->groupBy(
+        fn($item) =>
         Carbon::parse($item->date)->format('o-W')
     )->map(fn($group, $key) => [
         'x' => Carbon::now()->setISODate(substr($key, 0, 4), substr($key, 5))->startOfWeek()->timestamp * 1000,
         'y' => $group->sum('total')
     ])->values();
 
-    // MONTHLY (group by year + month)
-    $monthlyExpenses = $transactions->groupBy(fn($item) =>
+    // MONTHLY
+    $monthlyExpenses = $transactions->groupBy(
+        fn($item) =>
         Carbon::parse($item->date)->format('Y-m')
     )->map(fn($group, $key) => [
         'x' => Carbon::createFromFormat('Y-m', $key)->startOfMonth()->timestamp * 1000,
         'y' => $group->sum('total')
     ])->values();
 
-    $monthlyIncomes = $incomes->groupBy(fn($item) =>
+    $monthlyIncomes = $incomes->groupBy(
+        fn($item) =>
         Carbon::parse($item->date)->format('Y-m')
     )->map(fn($group, $key) => [
         'x' => Carbon::createFromFormat('Y-m', $key)->startOfMonth()->timestamp * 1000,
         'y' => $group->sum('total')
     ])->values();
 
-    // ===========================
-    // 🎯 Fetch only uncompleted goals
-    // ===========================
-    $goals = Goal::where('user', $user)
-                ->where('is_completed', false)
-                ->orderBy('aim_date', 'asc')
-                ->get();
+    // GOALS — only incomplete
+    $goals = Goal::where('user', $username)
+        ->where('is_completed', false)
+        ->orderBy('aim_date', 'asc')
+        ->get();
 
     return view('dashboard', [
         'page' => 'Dashboard',
+        'authUser' => $authUser, // 👈 pass user info to Blade
         'transactions' => $transactions,
         'incomes' => $incomes,
         'goals' => $goals,
@@ -116,6 +157,8 @@ Route::get('/', function () {
 })->name('dashboard');
 
 
+Route::get('/feedback/messages', [UserFeedbackController::class, 'getMessages'])->name('feedback.messages');
+Route::post('/feedback/send', [UserFeedbackController::class, 'send'])->name('feedback.send');
 
 
 Route::group(['middleware' => ['verified']], function () {
@@ -175,30 +218,30 @@ Route::group(['middleware' => ['verified']], function () {
         Transaction::find($id)->delete();
         return redirect('/')->with('success', 'Expense deleted successfully!');
     });
- Route::post('/transactions', [addExpenseController::class, 'store'])->name('transactions.store');
+    Route::post('/transactions', [addExpenseController::class, 'store'])->name('transactions.store');
 
 
 
-//analytics routes
+    //analytics routes
     Route::get('/analytics', function () {
-    $user = session('username');
+        $user = session('username');
 
-    if ($user === null) {
-        return redirect('/login');
-    }
+        if ($user === null) {
+            return redirect('/login');
+        }
 
-    $data = [
-        'page' => 'Analytics',
-        'transactions' => Transaction::where('user', $user)
-            ->orderBy('date', 'asc')
-            ->get(),
-        'incomes' => Income::where('user', $user)
-            ->orderBy('date', 'asc')
-            ->get(),
-    ];
+        $data = [
+            'page' => 'Analytics',
+            'transactions' => Transaction::where('user', $user)
+                ->orderBy('date', 'asc')
+                ->get(),
+            'incomes' => Income::where('user', $user)
+                ->orderBy('date', 'asc')
+                ->get(),
+        ];
 
-    return view('analytics', $data);
-});
+        return view('analytics', $data);
+    });
 
     Route::get('/pdf', [PDFController::class, 'generatePDF']);
 
@@ -233,7 +276,7 @@ Route::group(['middleware' => ['verified']], function () {
         return redirect('/login')->with('success', 'You have been logged out!');
     });
 
-     Route::get('/add-goal', function () {
+    Route::get('/add-goal', function () {
         $data = ['page' => 'Add Goal'];
 
         if (session('username') == null) {
@@ -262,9 +305,4 @@ Route::group(['middleware' => ['verified']], function () {
 
 
     Route::patch('/goals/{goal}/complete', [GoalController::class, 'markComplete'])->name('goals.complete');
-
-
-
-
 });
-
