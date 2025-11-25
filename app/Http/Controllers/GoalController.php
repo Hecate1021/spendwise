@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class GoalController extends Controller
@@ -38,10 +39,27 @@ class GoalController extends Controller
 
         return redirect('/')->with('success', 'Goal updated successfully!');
     }
-    public function markComplete(Goal $goal)
+public function markComplete($id)
 {
+    $goal = Goal::findOrFail($id);
+
+    // Prevent duplicate entry
+    if ($goal->is_completed) {
+        return redirect()->back()->with('info', 'Goal already marked as completed.');
+    }
+
+    // Mark the goal as completed
     $goal->update(['is_completed' => true]);
-    return redirect()->back()->with('success', 'Goal marked as completed!');
+
+    // Record as an expense
+    Transaction::create([
+        'user' => session('username'), // or Auth::user()->username if using Auth
+        'expense' => $goal->title,
+        'total' => $goal->target_amount,
+        'date' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Goal marked as completed and recorded as expense!');
 }
 
 }

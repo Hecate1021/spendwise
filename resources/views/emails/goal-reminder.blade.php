@@ -29,8 +29,8 @@
                     <tr>
                         <td align="center" style="padding: 15px 30px;">
                             <p style="font-size: 15px; color: #555; line-height: 1.6; margin: 0;">
-                                Hi <strong>{{ $goal->user }}</strong>,<br><br>
-                                This is a reminder that your goal <strong>"{{ $goal->title }}"</strong> is due today ({{ date('F d, Y', strtotime($goal->aim_date)) }}).
+                                Hi <strong>{{ $goalUser }}</strong>,<br><br>
+                                This is a reminder that your goal <strong>"{{ $goalTitle }}"</strong> is due <strong>{{ $when }}</strong> ({{ $goalDate }}).
                             </p>
                         </td>
                     </tr>
@@ -39,9 +39,9 @@
                     <tr>
                         <td align="center" style="padding: 20px 30px;">
                             <div style="background-color: #f8f9fb; border-radius: 8px; padding: 15px 20px; text-align: left;">
-                                <p style="margin: 0; font-size: 14px; color: #444;"><strong>Description:</strong> {{ $goal->description }}</p>
+                                <p style="margin: 0; font-size: 14px; color: #444;"><strong>Description:</strong> {{ $goalDescription }}</p>
                                 <p style="margin: 6px 0 0; font-size: 14px; color: #444;">
-                                    <strong>Target Amount:</strong> ₱{{ number_format($goal->target_amount, 2) }}
+                                    <strong>Target Amount:</strong> ₱{{ $goalTarget }}
                                 </p>
                             </div>
                         </td>
